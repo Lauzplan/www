@@ -1,91 +1,115 @@
 <template>
-  <v-app dark>
-    <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      fixed
-      app
+  <v-app>
+    <ApolloQuery
+      :query="
+        (gql) =>
+          gql`
+            query getGardens {
+              gardens {
+                name
+                id
+              }
+              me {
+                id
+                username
+                preferences @client {
+                  selectedGarden {
+                    name
+                    id
+                  }
+                }
+              }
+            }
+          `
+      "
     >
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
+      <template v-slot="{ result: { error, data } }">
+        {{ error }}
+        <v-navigation-drawer
+          v-if="data"
+          id="mainDrawer"
+          :mini-variant.sync="miniVariant"
+          app
+          permanent
+          expand-on-hover
         >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    <v-app-bar :clipped-left="clipped" fixed app>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="clipped = !clipped">
-        <v-icon>mdi-application</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="fixed = !fixed">
-        <v-icon>mdi-minus</v-icon>
-      </v-btn>
-      <v-toolbar-title v-text="title" />
-      <v-spacer />
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
-    </v-app-bar>
+          <v-list>
+            <garden-selector
+              v-model="data.me.preferences.selectedGarden"
+              :gardens="data.gardens"
+            />
+
+            <v-divider></v-divider>
+            <v-list-item-group>
+              <v-list-item
+                v-for="(item, i) in items"
+                :key="i"
+                :to="item.to"
+                router
+                exact
+              >
+                <v-list-item-action>
+                  <v-icon>{{ item.icon }}</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title v-text="item.title" />
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-navigation-drawer>
+        <v-app-bar v-if="data" app>
+          <v-toolbar-title>
+            <garden-name-editor :garden="data.me.preferences.selectedGarden" />
+          </v-toolbar-title>
+          <v-spacer />
+          <account-menu :me="data.me" />
+        </v-app-bar>
+      </template>
+    </ApolloQuery>
     <v-main>
       <v-container>
         <nuxt />
       </v-container>
     </v-main>
-    <v-navigation-drawer v-model="rightDrawer" :right="right" temporary fixed>
-      <v-list>
-        <v-list-item @click.native="right = !right">
-          <v-list-item-action>
-            <v-icon light> mdi-repeat </v-icon>
-          </v-list-item-action>
-          <v-list-item-title>Switch drawer (click me)</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    <v-footer :absolute="!fixed" app>
-      <span>&copy; {{ new Date().getFullYear() }}</span>
-    </v-footer>
   </v-app>
 </template>
 
 <script>
+import AccountMenu from '~/components/default_layout/AccountMenu.vue'
+import GardenNameEditor from '~/components/default_layout/GardenNameEditor.vue'
+import GardenSelector from '~/components/default_layout/GardenSelector.vue'
 export default {
+  components: {
+    AccountMenu,
+    GardenNameEditor,
+    GardenSelector,
+  },
   data() {
     return {
-      clipped: false,
-      drawer: false,
-      fixed: false,
       items: [
         {
-          icon: 'mdi-apps',
-          title: 'Welcome',
-          to: '/',
+          title: 'Dashboard',
+          icon: 'mdi-view-dashboard',
+          to: 'dashboard',
         },
         {
-          icon: 'mdi-chart-bubble',
-          title: 'Inspire',
-          to: '/inspire',
+          title: 'Parcelles',
+          icon: 'mdi-map',
+          to: 'parcels',
+        },
+        {
+          title: 'Planning',
+          icon: 'mdi-calendar-text',
+          to: 'planning',
         },
       ],
-      miniVariant: false,
-      right: true,
-      rightDrawer: false,
-      title: 'Vuetify.js',
+      miniVariant: true,
+      title: 'Lauzplan',
+      gadenMenu: false,
+      selectedItem: 1,
     }
   },
 }
 </script>
+<style></style>

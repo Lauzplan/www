@@ -23,7 +23,7 @@ export default {
   css: [],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [],
+  plugins: ['~/plugins/vee-validate.js', '~/plugins/auth0.js'],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
@@ -47,7 +47,7 @@ export default {
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
     theme: {
-      dark: true,
+      dark: false,
       themes: {
         dark: {
           primary: colors.blue.darken2,
@@ -64,12 +64,29 @@ export default {
 
   apollo: {
     clientConfigs: {
-      default: {
-        httpEndpoint: 'http://127.0.0.1:8000/graphql',
-      },
+      default: '~/plugins/apollo-config.js',
     },
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
-  build: {},
+  build: {
+    transpile: ['vee-validate/dist/rules'],
+    loaders: {
+      vue: {
+        transpileOptions: {
+          transforms: {
+            dangerousTaggedTemplateString: true,
+          },
+        },
+      },
+    },
+  },
+  router: {
+    middleware: ['auth'],
+  },
+  auth0: {
+    domain: 'lauzplan.eu.auth0.com',
+    clientId: 'K3Dj19AQ3Q7WAUz5kIv0UfSut7ccRkO0',
+    audience: 'http://localhost:3000/',
+  },
 }
