@@ -43,12 +43,12 @@ export default {
   props: {
     garden: {
       type: Object,
-      required: true,
+      default: null,
     },
   },
   data(vm) {
     return {
-      innerName: vm.garden.name,
+      innerName: vm.garden?.name || null,
     }
   },
   watch: {

@@ -3,64 +3,37 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 // import { ApolloLink } from 'apollo-link'
 import { setContext } from 'apollo-link-context'
 
-const cache = new InMemoryCache({ persist: true })
+const cache = new InMemoryCache()
 
 const resolvers = {
   UserType: {
-    async preferences(root, _, { cache, client }) {
-      const query = gql`
-        {
-          knownUsers {
-            id
-            preferences {
-              selectedGarden {
-                id
-              }
-            }
-          }
-        }
-      `
-      let data
+    preferences(root, _, context) {
+      let knownUsers = []
       try {
-        data = cache.readQuery({ query })
-      } catch (error) {
-        let knownUsers = []
-        try {
-          knownUsers =
-            JSON.parse(window.localStorage.getItem('knownUsers')) || []
-        } catch (error) {
-          console.log(error)
+        knownUsers = JSON.parse(window.localStorage.getItem('knownUsers')) || []
+      } catch (err) {
+        if (!(err instanceof SyntaxError)) {
+          throw err
         }
-        data = { knownUsers }
       }
-
-      let user = data.knownUsers.find((u) => u.id === root.id)
-      if (!user) {
-        data.knownUsers.push(root)
-        user = root
-      }
-
-      user.preferences = user.preferences || { __typename: 'UserPreferences' }
-
-      if (!user.preferences.selectedGarden) {
-        const {
-          data: { gardens },
-        } = await client.query({
-          query: gql`
-            {
-              gardens {
-                __typename
+      let preferences =
+        knownUsers.find((user) => user.id === root.id)?.preferences || {}
+      try {
+        cache.readFragment({
+          id: preferences.selectGarden.id,
+          fragment: gql`
+              fragment on GardenType {
                 id
               }
-            }
-          `,
+            `,
         })
-
-        user.preferences.selectedGarden = gardens[0]
+      } catch {
+        preferences = {}
       }
-      cache.writeQuery({ query, data })
-      window.localStorage.setItem('knownUsers', JSON.stringify(data.knownUsers))
-      return user.preferences
+      return {
+        selectedGarden: preferences.selectedGarden || null,
+        __typename: 'UserPreferences',
+      }
     },
   },
   Mutation: {
@@ -91,7 +64,7 @@ const resolvers = {
         user = cacheData.find((u) => u.id === data.me.id)
         if (!user) {
           user = data.me
-          cacheData.push(data)
+          cacheData.push(user)
         }
       } catch {
         user = data.me
@@ -101,7 +74,6 @@ const resolvers = {
         ...user.preferences,
         selectedGarden: { __typename: 'GardenType', id: garden.id },
       }
-
       window.localStorage.setItem('knownUsers', JSON.stringify(cacheData))
       return true
     },
