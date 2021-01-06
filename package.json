@@ -21,22 +21,22 @@
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.13.3",
-    "@deck.gl/core": "^8.3.8",
-    "@deck.gl/layers": "^8.3.8",
     "@nuxtjs/apollo": "^4.0.1-rc.4",
     "@nuxtjs/pwa": "^3.0.2",
     "apollo3-cache-persist": "^0.8.0",
     "core-js": "^3.6.5",
     "deck.gl": "^8.3.7",
     "graphql-tag": "^2.11.0",
-    "leaflet": "^1.7.1",
-    "mapbox-gl": "^1.12.0",
     "nuxt": "^2.14.6",
     "ol": "^6.4.3",
+    "ol-ext": "^3.1.16",
+    "rxjs": "^6.6.3",
     "vee-validate": "^3.4.5",
-    "vue-apollo": "^3.0.5"
+    "vue-apollo": "^3.0.5",
+    "vue-rx": "^6.2.0"
   },
   "devDependencies": {
+    "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/eslint-config": "^3.1.0",
     "@nuxtjs/eslint-module": "^2.0.0",
     "@nuxtjs/vuetify": "^1.11.2",

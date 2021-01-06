@@ -1,0 +1,33 @@
+mutation deleteParcel($id: ID!) {
+  deleteParcel(id: $id) {
+    ok
+  }
+}
+
+query parcelsFromGardenId {
+  garden(id: $id) {
+    id
+    parcelSet {
+      id
+      name
+      geometry
+      feature @client
+    }
+  }
+}
+
+mutation createParcel($name: String!, $geometry: String!, $gardenId: ID!) {
+  createParcel(name: $name, geometry: $geometry, gardenId: $gardenId) {
+    id
+    name
+    geometry
+  }
+}
+
+mutation updateParcel($geometry: String, $id: ID!) {
+  updateParcel(geometry: $geometry, id: $id) {
+    id
+    name
+    geometry
+  }
+}

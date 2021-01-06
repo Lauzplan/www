@@ -1,107 +1,205 @@
 <template>
   <div>
-    <link
-      href="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css"
-      rel="stylesheet"
-    />
-    <v-row>
-      <v-col>
-        <div id="mapid3" class="map"></div>
-      </v-col>
-      <v-col>
-        <div id="mapid4" class="map"></div>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <div id="mapid2" class="map"></div>
-      </v-col>
-      <v-col>
-        <div id="mapid" class="map"></div>
-      </v-col>
-    </v-row>
+    <v-card>
+      <v-row no-gutters>
+        <v-col sm="10">
+          <v-map v-if="garden" :fit="fit">
+            <tile-layer>
+              <bing-map
+                :api-key="apiKey"
+                :imagery-set="'AerialWithLabelsOnDemand'"
+              >
+              </bing-map>
+            </tile-layer>
+            <vector-layer>
+              <vector-source
+                :features="features"
+                @addfeature="addFeature"
+                @removefeature="deleteFeature"
+                @changefeature="updateExtent"
+              >
+                <edit-bar />
+              </vector-source>
+              <zoom-to-extent />
+            </vector-layer>
+            <controls>
+              <full-screen />
+              <zoom-to-extent :extent="extent" />
+            </controls>
+            <interactions> </interactions>
+          </v-map>
+        </v-col>
+        <v-col>
+          <v-list v-if="garden">
+            <v-list-item-group v-model="selectedParcel" color="primary">
+              <v-list-item
+                v-for="parcel in garden.parcelSet"
+                :key="parcel.id"
+                :value="parcel"
+              >
+                <v-list-item-content>{{ parcel.name }}</v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-col>
+      </v-row>
+    </v-card>
   </div>
 </template>
 <script>
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import mapboxgl from 'mapbox-gl'
+import { fromEventPattern, from, Subscription } from 'rxjs'
+import { debounceTime, mapTo, mergeMap } from 'rxjs/operators'
 import 'ol/ol.css'
-import { Map, View } from 'ol'
-import BingMaps from 'ol/source/BingMaps'
-import TileLayer from 'ol/layer/Tile'
-import { FullScreen, defaults as defaultControls } from 'ol/control'
-// import OSM from 'ol/source/OSM'
+import GeoJSON from 'ol/format/GeoJSON'
+import { createEmpty, extend } from 'ol/extent'
+import VMap from '~/components/open_layer/VMap.vue'
+import TileLayer from '~/components/open_layer/layers/TileLayer.vue'
+import BingMap from '~/components/open_layer/sources/BingMap.vue'
+import Controls from '~/components/open_layer/controls/Controls.vue'
+import FullScreen from '~/components/open_layer/controls/FullScreen.vue'
+import ZoomToExtent from '~/components/open_layer/controls/ZoomToExtent.vue'
+import EditBar from '~/components/open_layer/controls/EditBar.vue'
+import Interactions from '~/components/open_layer/interactions/Interactions.vue'
+import VectorLayer from '~/components/open_layer/layers/VectorLayer.vue'
+import VectorSource from '~/components/open_layer/sources/VectorSource.vue'
+import { gardenById } from '~/graphql/garden.gql'
+import {
+  deleteParcel,
+  parcelsFromGardenId,
+  createParcel,
+  updateParcel,
+} from '~/graphql/parcel.gql'
+
 export default {
-  mounted() {
-    mapboxgl.accessToken =
-      'pk.eyJ1IjoiZ3VpbGxhdW1lZGVtb2ZmIiwiYSI6ImNraGwxNnNqeDI4ZWcyc2w2bGFtc2oxZDkifQ.RcIwnI9pW87QjBsmX-KCjw'
+  components: {
+    VMap,
+    TileLayer,
+    BingMap,
+    Controls,
+    FullScreen,
+    Interactions,
+    VectorLayer,
+    VectorSource,
+    EditBar,
+    ZoomToExtent,
+  },
+  data() {
+    return {
+      sub: new Subscription(),
+      apiKey: process.env.BING_MAP_KEY,
+      selectedParcel: {},
+      controlsOption: { zoom: false },
+      geoJSON: new GeoJSON(),
+      extent: createEmpty(),
+    }
+  },
+  apollo: {
+    garden: {
+      query: gardenById,
+      variables() {
+        return {
+          id: this.$route.params.id,
+        }
+      },
+    },
+  },
+  computed: {
+    features() {
+      return this.garden?.parcelSet.map((p) => p.feature) || []
+    },
+    fit() {
+      return (
+        this.selectedParcel?.feature?.getGeometry().getExtent() || this.extent
+      )
+    },
+  },
+  watch: {
+    features: {
+      deep: false,
+      handler() {
+        this.updateExtent()
+        this.sub?.unsubscribe()
 
-    // eslint-disable-next-line no-unused-vars
-    const map = new mapboxgl.Map({
-      container: 'mapid2',
-      style: 'mapbox://styles/guillaumedemoff/ckhl1fccp05ua19m9k0hyak5z',
-    })
-
-    const mymap = L.map('mapid').setView([51.505, -0.09], 13)
-    L.tileLayer(
-      'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      {
-        attribution:
-          'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-      }
-    ).addTo(mymap)
-    L.tileLayer(
-      'https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}',
-      {
-        attribution:
-          'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        subdomains: 'abcd',
-        minZoom: 0,
-        maxZoom: 20,
-        ext: 'png',
-      }
-    ).addTo(mymap)
-
-    const mymap3 = L.map('mapid3').setView([51.505, -0.09], 13)
-
-    L.tileLayer(
-      'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
-      {
-        attribution:
-          'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18,
-        id: 'guillaumedemoff/ckhl1fccp05ua19m9k0hyak5z',
-        tileSize: 512,
-        zoomOffset: -1,
-        accessToken:
-          'pk.eyJ1IjoiZ3VpbGxhdW1lZGVtb2ZmIiwiYSI6ImNraGwxNnNqeDI4ZWcyc2w2bGFtc2oxZDkifQ.RcIwnI9pW87QjBsmX-KCjw',
-      }
-    ).addTo(mymap3)
-
-    // eslint-disable-next-line no-unused-vars
-    const map4 = new Map({
-      controls: defaultControls().extend([new FullScreen()]),
-      target: 'mapid4',
-      layers: [
-        new TileLayer({
-          source: new BingMaps({
-            key:
-              'Am54icn65BLsfH0vTCqv87ukOj9rmE1DorjqkBek1JNVjOtSGRobfDPaMhokrOx2',
-            imagerySet: 'AerialWithLabelsOnDemand',
-          }),
-        }),
-      ],
-      view: new View({
-        center: [0, 0],
-        zoom: 0,
-      }),
-    })
+        this.sub = from(this.garden.parcelSet)
+          .pipe(
+            mergeMap((parcel) =>
+              fromEventPattern(
+                (h) => parcel.feature.getGeometry().on('change', h),
+                (h) => parcel.feature.getGeometry().un('change', h)
+              ).pipe(debounceTime(500), mapTo(parcel))
+            )
+          )
+          .subscribe((parcel) => this.changeFeature(parcel))
+      },
+    },
+  },
+  beforeDestroy() {
+    this.sub?.unsubscribe()
+  },
+  methods: {
+    deleteFeature(feature) {
+      const parcelId = feature.getProperties().parcel_id
+      const id = this.$route.params.id
+      this.$apollo.mutate({
+        mutation: deleteParcel,
+        variables: {
+          id: parcelId,
+        },
+        update(store, { data: { deleteParcel } }) {
+          if (deleteParcel.ok === true) {
+            const query = parcelsFromGardenId
+            const data = store.readQuery({
+              query,
+              variables: { id },
+            })
+            data.garden.parcelSet = data.garden.parcelSet.filter(
+              (p) => p.id !== feature.getProperties().parcel_id
+            )
+            store.writeQuery({ query, data })
+          }
+        },
+      })
+    },
+    addFeature(feature) {
+      const id = this.$route.params.id
+      this.$apollo.mutate({
+        mutation: createParcel,
+        variables: {
+          name: `Parcel ${this.garden.parcelSet.length + 1}`,
+          geometry: this.geoJSON.writeGeometry(feature.getGeometry()),
+          gardenId: this.$route.params.id,
+        },
+        update(store, { data: { createParcel } }) {
+          createParcel.feature = feature
+          const query = parcelsFromGardenId
+          const data = store.readQuery({
+            query,
+            variables: { id },
+          })
+          createParcel.feature.setProperties({ parcel_id: createParcel.id })
+          data.garden.parcelSet.push(createParcel)
+          store.writeQuery({ query, data })
+        },
+      })
+    },
+    changeFeature(parcel) {
+      this.$apollo.mutate({
+        mutation: updateParcel,
+        variables: {
+          geometry: this.geoJSON.writeGeometry(parcel.feature.getGeometry()),
+          id: parcel.id,
+        },
+      })
+    },
+    updateExtent() {
+      this.extent[0] = Infinity
+      this.extent[1] = Infinity
+      this.extent[2] = -Infinity
+      this.extent[3] = -Infinity
+      this.features.forEach((f) =>
+        extend(this.extent, f.getGeometry().getExtent())
+      )
+    },
   },
 }
 </script>
-<style scoped>
-.map {
-  height: 500px;
-}
-</style>

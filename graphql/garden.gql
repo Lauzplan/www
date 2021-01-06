@@ -1,0 +1,11 @@
+query gardenById($id: ID!) {
+  garden(id: $id) {
+    id
+    parcelSet {
+      id
+      name
+      geometry
+      feature @client
+    }
+  }
+}

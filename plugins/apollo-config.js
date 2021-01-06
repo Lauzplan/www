@@ -2,10 +2,35 @@ import gql from 'graphql-tag'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 // import { ApolloLink } from 'apollo-link'
 import { setContext } from 'apollo-link-context'
+import GeoJSON from 'ol/format/GeoJSON'
+import { Feature } from 'ol'
 
 const cache = new InMemoryCache()
 
 const resolvers = {
+  ParcelType: {
+    feature(root, _, { cache }) {
+      const parcel = cache.readFragment({
+        id: root.id,
+        fragment: gql`
+          fragment parcel on ParcelType {
+            feature
+          }
+        `,
+      })
+
+      let feature
+      if (parcel) {
+        feature = parcel.feature
+      } else {
+        feature = new Feature(
+          new GeoJSON().readGeometry(JSON.parse(root.geometry))
+        )
+        feature.setProperties({ parcel_id: root.id })
+      }
+      return feature
+    },
+  },
   UserType: {
     preferences(root, _, context) {
       let knownUsers = []
