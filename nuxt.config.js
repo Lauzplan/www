@@ -27,6 +27,8 @@ export default {
     '~/plugins/vee-validate.js',
     '~/plugins/auth0.js',
     '~/plugins/vue-rx.js',
+    '~/plugins/formaters.js',
+    '~/plugins/observable-openlayers.js',
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)

@@ -1,10 +1,4 @@
-export default async function ({
-  $auth,
-  $apolloHelpers,
-  app,
-  redirect,
-  route,
-}) {
+export default async function ({ $auth, route }) {
   const hasAuthOff = route.matched.some((m) => {
     return Object.values(m.components).some(
       (component) => component.options && component.options.auth === false

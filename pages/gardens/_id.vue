@@ -11,7 +11,7 @@ export default {
   },
   watch: {
     $route: {
-      handler(to, from) {
+      handler(to) {
         if (!this._inactive && to.name !== 'gardens-id') {
           this.currentTab = to.name
         }

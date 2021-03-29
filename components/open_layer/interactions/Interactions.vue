@@ -1,5 +1,5 @@
 <template>
-  <div><slot /></div>
+  <div><slot v-if="loaded" /></div>
 </template>
 
 <script>
@@ -13,10 +13,14 @@ export default {
     },
   },
   inject: ['getMapInstance'],
+  data() {
+    return { loaded: false }
+  },
   mounted() {
     const map = this.getMapInstance()
     map.getInteractions().clear()
     defaults(this.options).forEach((c) => map.addInteraction(c))
+    this.loaded = true
   },
   beforeDestroy() {
     const map = this.getMapInstance()

@@ -1,11 +1,11 @@
 <template>
-  <div><slot /></div>
+  <div><slot v-if="interaction" /></div>
 </template>
 
 <script>
 import { Snap } from 'ol/interaction'
 export default {
-  name: 'DrawInteraction',
+  name: 'SnapInteraction',
   props: {
     options: {
       type: Object,
@@ -33,7 +33,7 @@ export default {
           // source,
           features: this.getFeatures(),
 
-          ...this.options,
+          ...val,
         })
         // needed to add the interaction after default controls has been loaded
         this.$nextTick().then(() => {

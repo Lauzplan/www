@@ -5,7 +5,18 @@ query gardenById($id: ID!) {
       id
       name
       geometry
-      feature @client
+      cultivableArea
+      area
+      bedSet {
+        id
+        geometry
+      }
+      soilType {
+        code
+        description
+        area
+        proportion
+      }
     }
   }
 }

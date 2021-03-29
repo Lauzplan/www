@@ -1,5 +1,5 @@
 <template>
-  <div><slot /></div>
+  <div><slot v-if="interaction" /></div>
 </template>
 
 <script>
@@ -37,7 +37,7 @@ export default {
           // source,
           features: this.getFeatures(),
           type: this.type,
-          ...this.options,
+          ...val,
         })
         // needed to add the interaction after default controls has been loaded
         this.$nextTick().then(() => {

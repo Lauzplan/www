@@ -12,6 +12,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    properties: {
+      type: Object,
+      default: () => {},
+    },
   },
   provide() {
     return {
@@ -24,9 +28,15 @@ export default {
       layer: null,
     }
   },
+  watch: {
+    properties(val) {
+      this.layer.setProperties(val)
+    },
+  },
   beforeMount() {
     this.layer = new VectorLayer(this.options)
     this.getMapInstance().addLayer(this.layer)
+    this.layer.setProperties(this.properties)
   },
   beforeDestroy() {
     this.getMapInstance().removeLayer(this.layer)

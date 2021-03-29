@@ -1,10 +1,14 @@
 <template>
-  <div>
+  <div v-if="vector">
+    <template v-for="(feature, index) in vector.getFeatures()">
+      <slot name="feature" :feature="feature" :index="index" />
+    </template>
     <slot />
   </div>
 </template>
 <script>
 import VectorSource from 'ol/source/Vector'
+import GeoJSON from 'ol/format/GeoJSON'
 import { Collection } from 'ol'
 
 export default {
@@ -14,34 +18,42 @@ export default {
       default: () => [],
     },
   },
-  inject: ['getLayerInstance'],
+  inject: ['getLayerInstance', 'getMapInstance'],
   provide() {
     return {
       getSourceInstance: () => this.vector,
-      getFeatures: () => this.featureCollection,
+      getFeatures: () => this.vector.getFeaturesCollection(),
     }
   },
   data() {
     return {
       vector: null,
-      featureCollection: null,
+      eventToEmit: ['addfeature', 'changefeature', 'removefeature'],
     }
   },
-  beforeMount() {
-    this.featureCollection = new Collection(this.features)
+  mounted() {
+    const featureProjection = this.getMapInstance()
+      .getView()
+      .getProjection()
+      .getCode()
     this.vector = new VectorSource({
-      features: this.featureCollection,
+      format: new GeoJSON({ featureProjection }),
+      features: new Collection(),
     })
     this.getLayerInstance().setSource(this.vector)
-    this.vector.on('addfeature', ({ feature }) => {
-      this.$emit('addfeature', feature)
-    })
-    this.vector.on('changefeature', (data) => {
-      this.$emit('changefeature', data.feature)
-    })
-    this.vector.on('removefeature', (data) => {
-      this.$emit('removefeature', data.feature)
-    })
+    for (const event of this.eventToEmit) {
+      this.vector.on(event, this.handleVectorSourceEvent)
+    }
+  },
+  beforeDestroy() {
+    for (const event of this.eventToEmit) {
+      this.vector.un(event, this.handleVectorSourceEvent)
+    }
+  },
+  methods: {
+    handleVectorSourceEvent({ type, feature }) {
+      this.$emit(type, feature)
+    },
   },
 }
 </script>

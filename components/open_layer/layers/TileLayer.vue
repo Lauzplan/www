@@ -20,7 +20,9 @@ export default {
     }
   },
   beforeMount() {
-    this.layer = new TileLayer()
+    this.layer = new TileLayer({
+      preload: Infinity,
+    })
     this.getMapInstance().addLayer(this.layer)
   },
   beforeDestroy() {

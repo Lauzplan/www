@@ -1,11 +1,12 @@
 <template>
-  <div><slot /></div>
+  <div><slot v-if="interaction" /></div>
 </template>
 
 <script>
 import { Modify } from 'ol/interaction'
+import { Collection } from 'ol'
 export default {
-  name: 'DrawInteraction',
+  name: 'ModifyInteraction',
   props: {
     options: {
       type: Object,
@@ -19,7 +20,7 @@ export default {
   data() {
     return { interaction: null }
   },
-  inject: ['getMapInstance', 'getSourceInstance', 'getFeatures'],
+  inject: ['getMapInstance'],
   watch: {
     options: {
       handler(val) {
@@ -27,13 +28,10 @@ export default {
         if (this.control) {
           map.removeControl(this.control)
         }
-        // const source = this.getSourceInstance()
-        // if (!source) return
-        this.interaction = new Modify({
-          features: this.getFeatures(),
 
-          // source,
-          ...this.options,
+        this.interaction = new Modify({
+          features: new Collection(this.features),
+          ...val,
         })
         // needed to add the interaction after default controls has been loaded
         this.$nextTick().then(() => {

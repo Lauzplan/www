@@ -1,5 +1,5 @@
 <template>
-  <div><slot /></div>
+  <div><slot v-if="control" /></div>
 </template>
 
 <script>
@@ -23,7 +23,7 @@ export default {
         if (this.control) {
           map.removeControl(this.control)
         }
-        this.control = new FullScreen(this.options)
+        this.control = new FullScreen(val)
         // needed to add the controls after default controls has been loaded
         this.$nextTick().then(() => {
           map.addControl(this.control)

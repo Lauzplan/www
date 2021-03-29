@@ -24,40 +24,49 @@
       "
     >
       <template v-slot="{ result: { data, error } }">
-        <v-hover v-model="drawerHover">
-          <v-navigation-drawer
-            v-if="data"
-            id="mainDrawer"
-            app
-            permanent
-            :mini-variant="miniVariant"
+        <v-navigation-drawer
+          v-if="data"
+          id="navigation-drawer"
+          v-model="drawer"
+          :mini-variant.sync="mini"
+          permanent
+          app
+        >
+          <v-btn
+            v-if="!mini"
+            class="close-btn rounded-l-xl"
+            absolute
+            x-small
+            fab
+            @click="mini = true"
           >
-            <v-list>
-              <garden-selector
-                :value="data.me.preferences.selectedGarden"
-                :gardens="data.gardens"
-                :menu.sync="gardenSelectionMenu"
-              />
-              <v-divider></v-divider>
-              <v-list-item-group>
-                <v-list-item
-                  v-for="(item, i) in items"
-                  :key="i"
-                  :to="{ name: item.to }"
-                  router
-                  exact
-                >
-                  <v-list-item-action>
-                    <v-icon>{{ item.icon }}</v-icon>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title v-text="item.title" />
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-navigation-drawer>
-        </v-hover>
+            <v-icon>mdi-chevron-left</v-icon>
+          </v-btn>
+          <v-list>
+            <garden-selector
+              :value="data.me.preferences.selectedGarden"
+              :gardens="data.gardens"
+              :menu.sync="gardenSelectionMenu"
+            />
+            <v-divider></v-divider>
+            <v-list-item-group>
+              <v-list-item
+                v-for="(item, i) in items"
+                :key="i"
+                :to="{ name: item.to }"
+                router
+                exact
+              >
+                <v-list-item-action>
+                  <v-icon>{{ item.icon }}</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title v-text="item.title" />
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-navigation-drawer>
         <v-app-bar v-if="data" app>
           <v-toolbar-title>
             <garden-name-editor :garden="data.me.preferences.selectedGarden" />
@@ -110,14 +119,16 @@ export default {
       gadenMenu: false,
       selectedItem: 1,
       gardenSelectionMenu: false,
-      drawerHover: false,
+      mini: true,
+      drawer: true,
     }
-  },
-  computed: {
-    miniVariant() {
-      return !(this.gardenSelectionMenu || this.drawerHover)
-    },
   },
 }
 </script>
-<style></style>
+<style>
+.close-btn {
+  bottom: 20px;
+  right: 0px;
+  border-radius: 0;
+}
+</style>

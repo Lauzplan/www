@@ -1,13 +1,9 @@
 <script>
-import BingMaps from 'ol/source/BingMaps'
+import { TileArcGISRest } from 'ol/source'
 
 export default {
   props: {
-    apiKey: {
-      type: String,
-      required: true,
-    },
-    imagerySet: {
+    url: {
       type: String,
       required: true,
     },
@@ -19,10 +15,8 @@ export default {
     }
   },
   beforeMount() {
-    this.bingMap = new BingMaps({
-      key: this.apiKey,
-      imagerySet: this.imagerySet,
-      hidpi: true,
+    this.bingMap = new TileArcGISRest({
+      url: this.url,
     })
     this.getLayerInstance().setSource(this.bingMap)
   },

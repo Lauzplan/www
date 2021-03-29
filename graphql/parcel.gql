@@ -4,14 +4,30 @@ mutation deleteParcel($id: ID!) {
   }
 }
 
-query parcelsFromGardenId {
+query parcelsFromGardenId($id: ID!) {
   garden(id: $id) {
     id
     parcelSet {
       id
       name
       geometry
-      feature @client
+      bedSet {
+        id
+        geometry
+      }
+    }
+  }
+}
+
+query getParcelDetails($id: ID!) {
+  parceldetails: parcel(id: $id) {
+    id
+    area
+    cultivableArea
+    soilType {
+      code
+      description
+      proportion
     }
   }
 }
@@ -21,6 +37,10 @@ mutation createParcel($name: String!, $geometry: String!, $gardenId: ID!) {
     id
     name
     geometry
+    bedSet {
+      id
+      geometry
+    }
   }
 }
 
