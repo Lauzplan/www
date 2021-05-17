@@ -22,7 +22,7 @@ export default {
       } = await this.$apollo.mutate({
         mutation: gql`
           mutation createGarden($name: String!) {
-            createGarden(name: $name, postalCode: "1234") {
+            createGarden(name: $name) {
               name
               id
             }

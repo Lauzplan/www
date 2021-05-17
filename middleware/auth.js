@@ -5,9 +5,7 @@ export default async function ({ $auth, route }) {
     )
   })
 
-  if (hasAuthOff) {
-    return
-  }
+  if (hasAuthOff) return
 
   if (!(await $auth.isAuthenticated())) {
     await $auth.loginWithRedirect({ appState: route.path })

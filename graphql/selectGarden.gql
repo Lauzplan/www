@@ -1,0 +1,3 @@
+mutation selectGarden($gardenId: ID!) {
+  selectGarden(gardenId: $gardenId) @client
+}

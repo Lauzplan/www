@@ -5,7 +5,9 @@ module.exports = {
     '^vue$': 'vue/dist/vue.common.js',
   },
   moduleFileExtensions: ['js', 'vue', 'json'],
+  transformIgnorePatterns: ['node_modules/(?!@ol)/'],
   transform: {
+    '\\.(gql|graphql)$': 'jest-transform-graphql',
     '^.+\\.js$': 'babel-jest',
     '.*\\.(vue)$': 'vue-jest',
   },

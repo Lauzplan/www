@@ -1,43 +1,24 @@
 <script>
-import gql from 'graphql-tag'
+import gardensIdsWithPreferences from '@/graphql/gardensIdsWithPreferences.gql'
 
 export default {
+  render() {
+    return null
+  },
   async middleware({ app, redirect }) {
     const client = app.apolloProvider.defaultClient
     const { data } = await client.query({
-      query: gql`
-        query getGardenIds {
-          gardens {
-            id
-          }
-          me {
-            id
-            preferences @client {
-              selectedGarden {
-                id
-              }
-            }
-          }
-        }
-      `,
+      query: gardensIdsWithPreferences,
     })
-    const selectedGarden = data.me.preferences.selectedGarden
+    let id = data.me.preferences?.selectedGarden?.id
     if (data.gardens.length === 0) {
       return redirect('/no-garden')
-    } else if (
-      selectedGarden &&
-      data.gardens.find((g) => g.id === selectedGarden)
-    ) {
-      redirect({
-        name: 'gardens-id',
-        params: { id: selectedGarden.id },
-      })
-    } else {
-      redirect({
-        name: 'gardens-id',
-        params: { id: data.gardens[0].id },
-      })
     }
+    if (!id) id = data.gardens[0].id
+    return redirect({
+      name: 'gardens-id',
+      params: { id },
+    })
   },
 }
 </script>

@@ -55,7 +55,6 @@ export default {
         }),
       }),
     })
-    // this.map.getControls$().subscribe(console.log)
   },
   methods: {
     fitHandler(val) {

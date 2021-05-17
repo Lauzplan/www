@@ -1,0 +1,6 @@
+mutation updateGarden($id: ID!, $gardenName: String!) {
+  updateGarden(id: $id, name: $gardenName) {
+    id
+    name
+  }
+}

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <error-manager :error.sync="error" />
+    <error-manager :error="error" />
     <!-- <v-row>
       <v-spacer />
       <v-col>
@@ -51,8 +51,12 @@
                     :key="feature.ol_uid"
                     :feature="feature"
                     :sync="syncParcels"
-                    :parcels="garden.parcelSet"
-                    @error="error = 'Impossible de sauver cette parcelle.'"
+                    :parcels="garden.parcels"
+                    @error="
+                      error = {
+                        message: 'Impossible de sauver cette parcelle.',
+                      }
+                    "
                   />
                 </template>
                 <snap-guide-interaction>
@@ -67,7 +71,7 @@
                 <zoom-to-extent />
 
                 <parcel-loader
-                  :parcels="garden.parcelSet"
+                  :parcels="garden.parcels"
                   @loadEnd="parcelsLoaded = true"
                 />
                 <edit-bar
@@ -78,7 +82,7 @@
                     <mouse-tooltip v-slot="{ coordinate }">
                       <parcel-info-tooltip
                         :coordinate="coordinate"
-                        :parcels="garden.parcelSet"
+                        :parcels="garden.parcels"
                       />
                     </mouse-tooltip>
                   </toggle>
@@ -111,7 +115,7 @@
     </v-card>
     <v-expansion-panels v-if="garden" v-model="open" class="mt-5">
       <parcel-detail-panel
-        v-for="parcel in garden.parcelSet"
+        v-for="parcel in garden.parcels"
         :key="parcel.id"
         :parcel="parcel"
       />
@@ -197,7 +201,7 @@ export default {
       isDrawing: false,
       syncParcels: false,
       parcelsLoaded: false,
-      error: '',
+      error: { message: '' },
       open: null,
       isActive: false,
     }
@@ -214,7 +218,7 @@ export default {
   },
   computed: {
     beds() {
-      return this.garden.parcelSet.map((parcel) => parcel.bedSet).flat()
+      return this.garden.parcels.map((parcel) => parcel.beds).flat()
     },
   },
   watch: {

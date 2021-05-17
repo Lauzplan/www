@@ -1,59 +1,62 @@
 <template>
-  <ApolloMutation
-    :mutation="
-      (gql) => gql`
-        mutation updateGarden($id: ID!, $gardenName: String!) {
-          updateGarden(id: $id, name: $gardenName) {
-            garden {
-              id
-              name
-            }
-          }
-        }
-      `
-    "
-  >
-    <template v-slot="{ mutate }">
-      <v-tooltip bottom open-delay="100">
-        <template v-slot:activator="{ on, attrs }">
-          <v-text-field
-            v-model="innerName"
-            v-bind="attrs"
-            hide-details
-            v-on="on"
-            @blur="
-              mutate({
-                variables: {
-                  id: garden.id,
-                  gardenName: innerName,
-                },
-              })
-            "
-          ></v-text-field>
-        </template>
-        <span>Renommer</span>
-      </v-tooltip>
+  <v-tooltip bottom open-delay="100">
+    <template v-slot:activator="{ on, attrs }">
+      <v-text-field
+        v-model="innerName"
+        v-bind="attrs"
+        hide-details
+        :loading="isSaving"
+        v-on="on"
+        @keydown.enter="saveName"
+        @blur="saveName"
+      ></v-text-field>
     </template>
-  </ApolloMutation>
+    <span>Renommer</span>
+  </v-tooltip>
 </template>
 
 <script>
+import updateGarden from '@/graphql/updateGarden.gql'
 export default {
   name: 'GardenNameEditor',
   props: {
     garden: {
       type: Object,
-      default: null,
+      required: true,
     },
   },
-  data(vm) {
+  data() {
     return {
-      innerName: vm.garden?.name || null,
+      innerName: null,
+      isSaving: false,
     }
   },
   watch: {
-    garden(newVal) {
-      this.innerName = newVal.name
+    garden: {
+      handler(newVal) {
+        this.innerName = newVal.name
+      },
+      immediate: true,
+    },
+  },
+  methods: {
+    saveName() {
+      this.isSaving = true
+      this.$apollo
+        .mutate({
+          mutation: updateGarden,
+          variables: {
+            id: this.garden.id,
+            gardenName: this.innerName,
+          },
+        })
+        .catch(() => {
+          this.innerName = this.garden.name
+          this.$emit('error', 'Impossible de sauver le nom')
+        })
+        .finally(() => {
+          this.isSaving = false
+        })
     },
   },
 }

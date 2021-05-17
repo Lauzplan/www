@@ -90,10 +90,16 @@ export default {
   },
   router: {
     middleware: ['auth'],
+    extendRoutes(routes, resolve) {
+      const gardensId = routes.find((r) => r.name === 'gardens-id')
+      if (gardensId) {
+        gardensId.redirect = { name: 'gardens-id-dashboard' }
+      }
+    },
   },
   auth0: {
     domain: 'lauzplan.eu.auth0.com',
     clientId: 'K3Dj19AQ3Q7WAUz5kIv0UfSut7ccRkO0',
-    audience: 'http://localhost:3000/',
+    audience: 'https://lauzplan.eu.auth0.com/login/callback',
   },
 }

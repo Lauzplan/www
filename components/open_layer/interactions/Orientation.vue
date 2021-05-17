@@ -150,7 +150,7 @@ export default {
             const fragment = gql`
               fragment parcel on ParcelType {
                 id
-                bedSet {
+                beds {
                   id
                   geometry
                 }
@@ -161,7 +161,7 @@ export default {
               fragment,
             })
 
-            data.bedSet = beds
+            data.beds = beds
 
             store.writeFragment({
               id: `ParcelType:${feature.getId()}`,

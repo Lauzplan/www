@@ -46,7 +46,6 @@
             <garden-selector
               :value="data.me.preferences.selectedGarden"
               :gardens="data.gardens"
-              :menu.sync="gardenSelectionMenu"
             />
             <v-divider></v-divider>
             <v-list-item-group>
@@ -54,8 +53,8 @@
                 v-for="(item, i) in items"
                 :key="i"
                 :to="{ name: item.to }"
-                router
                 exact
+                nuxt
               >
                 <v-list-item-action>
                   <v-icon>{{ item.icon }}</v-icon>
@@ -117,8 +116,6 @@ export default {
       ],
       title: 'Lauzplan',
       gadenMenu: false,
-      selectedItem: 1,
-      gardenSelectionMenu: false,
       mini: true,
       drawer: true,
     }

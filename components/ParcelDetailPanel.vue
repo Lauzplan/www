@@ -19,7 +19,7 @@
           >
         </v-row>
         <v-row>
-          <v-col>Nombre de Planche: {{ parcel.bedSet.length }}</v-col>
+          <v-col>Nombre de Planche: {{ parcel.beds.length }}</v-col>
         </v-row>
         <v-row>
           <v-col><b>Type de sols:</b></v-col>

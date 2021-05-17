@@ -204,7 +204,7 @@ export default {
           map((c) => {
             const l = c.length
             if (l >= 3) {
-              return new LineString([[c[l - 3], c[l - 2]]]).getLength()
+              return new LineString([c[l - 3], c[l - 2]]).getLength()
             }
             return null
           })

@@ -8,7 +8,7 @@
   >
     {{ message }}
     <template v-slot:action="{ attrs }">
-      <v-btn v-stream:click="close$" icon v-bind="attrs">
+      <v-btn v-stream:click="close$" icon v-bind="attrs" aria-label="Close">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </template>
@@ -29,7 +29,7 @@ export default {
   name: 'ErrorManager',
   props: {
     error: {
-      type: String,
+      type: Object,
       default: () => null,
     },
   },
@@ -49,12 +49,14 @@ export default {
     const snackbarClose$ = merge(
       this.close$.pipe(mapTo(false)),
       this.input$.pipe(
-        pluck('event.msg'),
-        filter((data) => !data)
+        pluck('event'),
+        pluck('msg'),
+        filter((msg) => !msg)
       )
     )
     const message$ = this.$watchAsObservable('error').pipe(
       pluck('newValue'),
+      pluck('message'),
       filter((msg) => msg),
       concatMap((msg) =>
         merge(of(msg), NEVER.pipe(takeUntil(snackbarClose$.pipe(delay(500)))))

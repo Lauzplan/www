@@ -1,5 +1,5 @@
 <template>
-  <span contenteditable></span>
+  <span role="input" contenteditable></span>
 </template>
 
 <script>
@@ -31,10 +31,8 @@ export default {
       }
     })
     this.$el.addEventListener('keyup', ({ keyCode, target }) => {
-      let text = target.textContent
+      const text = target.textContent.replace(/\n/g, '')
       if (keyCode === 13) {
-        text = target.textContent
-        // Will reomve the enter char
         target.textContent = text
         target.blur()
         this.$emit('validate', text)
@@ -44,7 +42,7 @@ export default {
   },
   methods: {
     setText(text) {
-      this.$el.textContent = text || ''
+      this.$el.textContent = text.replace(/\n/g, '') || ''
     },
   },
 }

@@ -1,0 +1,13 @@
+query gardensIdWithPreferences {
+  gardens {
+    id
+  }
+  me {
+    id
+    preferences @client {
+      selectedGarden {
+        id
+      }
+    }
+  }
+}

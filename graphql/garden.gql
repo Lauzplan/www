@@ -1,13 +1,13 @@
 query gardenById($id: ID!) {
   garden(id: $id) {
     id
-    parcelSet {
+    parcels {
       id
       name
       geometry
       cultivableArea
       area
-      bedSet {
+      beds {
         id
         geometry
       }
@@ -18,5 +18,18 @@ query gardenById($id: ID!) {
         proportion
       }
     }
+  }
+}
+
+query gardens {
+  gardens {
+    id
+    name
+  }
+}
+
+query garden($id: ID!) {
+  garden(id: $id) {
+    id
   }
 }

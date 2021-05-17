@@ -103,7 +103,7 @@ export default {
               variables: { id: gardenId },
             })
             feature.setId(createParcel.id)
-            data.garden.parcelSet.push(createParcel)
+            data.garden.parcels.push(createParcel)
             store.writeQuery({ query, data })
           },
         })
@@ -131,7 +131,7 @@ export default {
               query,
               variables: { id: gardenId },
             })
-            data.garden.parcelSet = data.garden.parcelSet.filter(
+            data.garden.parcels = data.garden.parcels.filter(
               (p) => p.id !== feature.getId()
             )
             store.writeQuery({ query, data })

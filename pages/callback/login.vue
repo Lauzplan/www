@@ -1,15 +1,11 @@
 <script>
 export default {
   async mounted() {
-    if ('code' in this.$route.query && 'state' in this.$route.query) {
-      try {
-        const { appState } = await this.$auth.handleRedirectCallback()
-        this.$router.push(appState)
-      } catch {
-        this.$router.push('/')
-      }
-    } else {
-      this.$router.push('/')
+    try {
+      const { appState } = await this.$auth.handleRedirectCallback()
+      this.$router.replace(appState)
+    } catch {
+      this.$router.replace('/')
     }
   },
   render() {

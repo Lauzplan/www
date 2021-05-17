@@ -7,11 +7,11 @@ mutation deleteParcel($id: ID!) {
 query parcelsFromGardenId($id: ID!) {
   garden(id: $id) {
     id
-    parcelSet {
+    parcels {
       id
       name
       geometry
-      bedSet {
+      beds {
         id
         geometry
       }
@@ -37,7 +37,7 @@ mutation createParcel($name: String!, $geometry: String!, $gardenId: ID!) {
     id
     name
     geometry
-    bedSet {
+    beds {
       id
       geometry
     }

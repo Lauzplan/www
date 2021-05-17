@@ -3,34 +3,42 @@
 </template>
 
 <script>
-import gql from 'graphql-tag'
-
+import selectGarden from '@/graphql/selectGarden.gql'
 export default {
   data() {
-    return { currentTab: 'gardens-id-dashboard' }
+    return { currentTab: 'gardens-id-dashboard', actif: true }
   },
   watch: {
     $route: {
       handler(to) {
-        if (!this._inactive && to.name !== 'gardens-id') {
-          this.currentTab = to.name
-        }
-        this.$apollo.mutate({
-          mutation: gql`
-            mutation selectGarden($garden: GardenType) {
-              selectGarden(garden: $garden) @client
-            }
-          `,
-          variables: {
-            garden: { id: to.params.id },
-          },
-        })
+        if (!this.actif) return
+        this.currentTab = to.name
       },
       immediate: true,
     },
   },
   activated() {
+    this.actif = true
     this.$router.push({ ...this.$route, name: this.currentTab })
+  },
+  deactivated() {
+    this.actif = false
+  },
+  watchQuery: ['id'],
+  async validate({ params, app }) {
+    const client = app.apolloProvider.defaultClient
+
+    try {
+      await client.mutate({
+        mutation: selectGarden,
+        variables: {
+          gardenId: params.id,
+        },
+      })
+      return true
+    } catch (e) {
+      return false
+    }
   },
   layout: 'gardens',
 }
