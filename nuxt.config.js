@@ -93,7 +93,7 @@ export default {
     extendRoutes(routes, resolve) {
       const gardensId = routes.find((r) => r.name === 'gardens-id')
       if (gardensId) {
-        gardensId.redirect = { name: 'gardens-id-dashboard' }
+        gardensId.redirect = { name: 'gardens-id-parcels' }
       }
     },
   },

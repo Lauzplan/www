@@ -6,7 +6,7 @@
 import selectGarden from '@/graphql/selectGarden.gql'
 export default {
   data() {
-    return { currentTab: 'gardens-id-dashboard', actif: true }
+    return { currentTab: 'gardens-id-parcels', actif: true }
   },
   watch: {
     $route: {
