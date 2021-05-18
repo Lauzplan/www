@@ -71,6 +71,24 @@ const resolvers = {
         __typename: 'UserPreferences',
       }
 
+      client.writeFragment({
+        id: `$UserType:${me.id}.preferences`,
+        fragment: gql`
+          fragment NewPref on UserPreferences {
+            selectedGarden {
+              id
+            }
+          }
+        `,
+        data: {
+          __typename: 'UserPreferences',
+          selectedGarden: {
+            __typename: 'GardenType',
+            id: gardenId,
+          },
+        },
+      })
+
       window.localStorage.setItem(
         'knownUsers',
         JSON.stringify({
