@@ -98,21 +98,21 @@ export default {
   data() {
     return {
       items: [
-        {
-          title: 'Dashboard',
-          icon: 'mdi-view-dashboard',
-          to: 'gardens-id-dashboard',
-        },
+        // {
+        //   title: 'Dashboard',
+        //   icon: 'mdi-view-dashboard',
+        //   to: 'gardens-id-dashboard',
+        // },
         {
           title: 'Parcelles',
           icon: 'mdi-map',
           to: 'gardens-id-parcels',
         },
-        {
-          title: 'Planning',
-          icon: 'mdi-calendar-text',
-          to: 'gardens-id-planning',
-        },
+        // {
+        //   title: 'Planning',
+        //   icon: 'mdi-calendar-text',
+        //   to: 'gardens-id-planning',
+        // },
       ],
       title: 'Lauzplan',
       gadenMenu: false,
