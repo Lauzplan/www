@@ -47,7 +47,7 @@ export default {
   name: 'AccountMenu',
   methods: {
     logout() {
-      this.$auth.logout()
+      this.$auth.logout({ returnTo: this.$config.baseURL })
     },
   },
 }

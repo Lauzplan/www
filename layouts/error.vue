@@ -5,7 +5,7 @@
     </h1>
     <h1 v-else>
       {{ otherError }}
-      <v-btn @click="$auth.logout()" />
+      <v-btn @click="$auth.logout({ returnTo: $config.baseURL })">Logout</v-btn>
     </h1>
     <NuxtLink to="/"> Home page </NuxtLink>
   </v-app>

@@ -102,4 +102,17 @@ export default {
     clientId: 'K3Dj19AQ3Q7WAUz5kIv0UfSut7ccRkO0',
     audience: 'https://lauzplan.eu.auth0.com/login/callback',
   },
+  publicRuntimeConfig: {
+    baseURL:
+      process.env.BASE_URL || process.env.NODE_ENV === 'production'
+        ? 'https://tfe-moffarts.info.ucl.ac.be'
+        : 'http://localhost:3000',
+    apiURL:
+      process.env.API_URL || process.env.NODE_ENV === 'production'
+        ? 'https://tfe-moffarts.info.ucl.ac.be/graphql'
+        : 'http://127.0.0.1:8000/graphql',
+    auth0Domain: 'lauzplan.eu.auth0.com',
+    auth0ClientId: 'K3Dj19AQ3Q7WAUz5kIv0UfSut7ccRkO0',
+    auth0Audience: 'localhost:8080',
+  },
 }

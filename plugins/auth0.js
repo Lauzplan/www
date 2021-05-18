@@ -25,10 +25,10 @@ import createAuth0Client from '@auth0/auth0-spa-js'
 
 export default async function (ctx, inject) {
   const $auth = await createAuth0Client({
-    domain: 'lauzplan.eu.auth0.com',
-    client_id: 'K3Dj19AQ3Q7WAUz5kIv0UfSut7ccRkO0',
-    redirect_uri: 'http://localhost:3000/callback/login',
-    audience: 'localhost:8080',
+    domain: ctx.$config.auth0Domain,
+    client_id: ctx.$config.auth0ClientId,
+    redirect_uri: `${ctx.$config.baseURL}/callback/login`,
+    audience: ctx.$config.auth0Audience,
   })
 
   inject('auth', $auth)

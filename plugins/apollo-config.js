@@ -114,7 +114,7 @@ export default (context) => {
     cache,
     typeDefs,
     resolvers,
-    httpEndpoint: 'http://127.0.0.1:8000/graphql',
+    httpEndpoint: context.$config.apiURL,
     link: authMiddleware,
   }
 }
