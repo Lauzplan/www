@@ -1,12 +1,22 @@
 <template>
   <v-expansion-panel>
-    <v-expansion-panel-header> {{ parcel.name }}</v-expansion-panel-header>
+    <v-expansion-panel-header>
+      <template #default="{ open }">
+        {{ parcel.name }}
+        <div class="text-right">
+          <v-fade-transition>
+            <v-btn v-if="open" icon @click.stop="$emit('fit')">
+              <v-icon>mdi-image-filter-center-focus-strong-outline</v-icon>
+            </v-btn>
+          </v-fade-transition>
+        </div>
+      </template>
+    </v-expansion-panel-header>
     <v-expansion-panel-content>
       <v-progress-linear
         v-if="$apollo.queries.parceldetails.loading"
         indeterminate
       ></v-progress-linear>
-      <!-- <div v-else-if="querryError" class="error apollo">An error occurred</div> -->
       <div v-else-if="parceldetails" class="result apollo">
         <v-row>
           <v-col>Aire total: {{ parceldetails.area }}m<sup>2</sup></v-col>
@@ -45,14 +55,9 @@ export default {
       required: true,
     },
   },
-  computed: {
-    getParcelDetails() {
-      return getParcelDetails
-    },
-  },
   watch: {
     parcel: {
-      handler(val) {
+      handler(_) {
         this.$apollo.queries.parceldetails.refetch()
       },
       deep: true,

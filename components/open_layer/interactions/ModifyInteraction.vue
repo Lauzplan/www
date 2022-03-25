@@ -1,50 +1,49 @@
 <template>
-  <div><slot v-if="interaction" /></div>
+  <div v-if="interaction">
+    <slot />
+    <style-list-slot-wrapper v-model="pointerStyle">
+      <slot name="pointerStyle" />
+    </style-list-slot-wrapper>
+  </div>
 </template>
 
 <script>
 import { Modify } from 'ol/interaction'
-import { Collection } from 'ol'
+
+import StyleListSlotWrapper from '../StyleListSlotWrapper.vue'
+import interaction from './mixin'
+
 export default {
   name: 'ModifyInteraction',
-  props: {
-    options: {
-      type: Object,
-      default: () => {},
-    },
-    features: {
-      type: Array,
-      default: () => [],
-    },
-  },
+  components: { StyleListSlotWrapper },
+  mixins: [interaction],
+  inject: ['getSourceInstance'],
   data() {
-    return { interaction: null }
+    return { pointerStyle: [] }
   },
-  inject: ['getMapInstance'],
   watch: {
-    options: {
-      handler(val) {
-        const map = this.getMapInstance()
-        if (this.control) {
-          map.removeControl(this.control)
-        }
-
-        this.interaction = new Modify({
-          features: new Collection(this.features),
-          ...val,
-        })
-        // needed to add the interaction after default controls has been loaded
-        this.$nextTick().then(() => {
-          map.addInteraction(this.interaction)
-        })
-      },
-      deep: true,
-      immediate: true,
-    },
+    pointerStyle: 'renderInteraction',
+    $attrs: 'renderInteraction',
   },
-  beforeDestroy() {
-    const map = this.getMapInstance()
-    map.removeInteraction(this.interaction)
+  mounted() {
+    this.renderInteraction()
+  },
+  methods: {
+    renderInteraction() {
+      if (this.interaction) {
+        this.map.removeInteraction(this.interaction)
+      }
+      this.interaction = new Modify({
+        source: this.getSourceInstance(),
+        deleteCondition: this.$attrs['delete-condition'],
+        insertVertexCondition: this.$attrs['insert-vertex-condition'],
+        condition: this.$attrs.condition,
+        style: this.pointerStyle.length > 0 ? this.pointerStyle : undefined,
+      })
+
+      this.map.addInteraction(this.interaction)
+      this.interaction.setActive(this.active)
+    },
   },
 }
 </script>

@@ -1,10 +1,5 @@
 <template>
-  <v-btn
-    color="success"
-    :disabled="disabled"
-    rounded
-    @click="$refs.uploader.click()"
-  >
+  <v-btn color="primary" :disabled="disabled" @click="$refs.uploader.click()">
     <v-icon left>{{ icon }}</v-icon>
     {{ label }}
     <input ref="uploader" type="file" hidden="true" @change="fileChanged" />
@@ -22,7 +17,7 @@ export default {
     },
     icon: {
       type: String,
-      default: 'mdi-upload',
+      default: 'mdi-import',
       required: false,
     },
     disabled: {

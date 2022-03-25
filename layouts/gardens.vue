@@ -1,29 +1,37 @@
 <template>
-  <v-app>
-    <ApolloQuery
-      :query="
-        (gql) =>
-          gql`
-            query getGardens {
-              gardens {
+  <ApolloQuery
+    :tag="null"
+    :query="
+      (gql) =>
+        gql`
+          query getGardens {
+            invitations {
+              id
+              garden {
+                id
                 name
-                id
               }
-              me {
-                id
-                username
-                preferences @client {
-                  selectedGarden {
-                    name
-                    id
-                  }
+            }
+            gardens {
+              name
+              id
+            }
+            me {
+              id
+              username
+              preferences @client {
+                selectedGarden {
+                  name
+                  id
                 }
               }
             }
-          `
-      "
-    >
-      <template v-slot="{ result: { data, error } }">
+          }
+        `
+    "
+  >
+    <template v-slot="{ result: { data, error } }">
+      <v-app>
         <v-navigation-drawer
           v-if="data"
           id="navigation-drawer"
@@ -71,17 +79,16 @@
             <garden-name-editor :garden="data.me.preferences.selectedGarden" />
           </v-toolbar-title>
           <v-spacer />
+          <notification-menu :invitations="data.invitations" />
           <account-menu :me="data.me" />
         </v-app-bar>
         <v-main v-if="data">
-          <v-container>
-            {{ error }}
-            <nuxt keep-alive />
-          </v-container>
+          {{ error }}
+          <nuxt keep-alive />
         </v-main>
-      </template>
-    </ApolloQuery>
-  </v-app>
+      </v-app>
+    </template>
+  </ApolloQuery>
 </template>
 
 <script>
@@ -107,6 +114,16 @@ export default {
           title: 'Parcelles',
           icon: 'mdi-map',
           to: 'gardens-id-parcels',
+        },
+        {
+          title: 'Statistiques',
+          icon: 'mdi-chart-box',
+          to: 'gardens-id-stats',
+        },
+        {
+          title: 'Paramètres',
+          icon: 'mdi-cog',
+          to: 'gardens-id-parameters',
         },
         // {
         //   title: 'Planning',

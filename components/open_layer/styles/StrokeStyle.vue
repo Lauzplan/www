@@ -1,25 +1,20 @@
 <script>
 import Stroke from 'ol/style/Stroke'
+import mixinMaker from './mixin'
+
 export default {
-  name: 'FillStyle',
-  inject: ['getStyleInstance'],
-  data() {
-    return {
-      strokeStyle: new Stroke({
-        color: this.$attrs.color,
-        width: this.$attrs.width,
-      }),
-    }
-  },
-  mounted() {
-    this.getStyleInstance().setStroke(this.strokeStyle)
-  },
-  beforeDestroy() {
-    this.getStyleInstance().setStroke(undefined)
-  },
-  render() {
-    return null
-  },
+  name: 'StrokeStyle',
+  mixins: [
+    mixinMaker(Stroke, [
+      { name: 'color', hasStter: true, type: [Array, String] },
+      { name: 'lineCap', hasStter: true, type: String },
+      { name: 'lineJoin', hasStter: true, type: String },
+      { name: 'lineDash', hasStter: true, type: Array },
+      { name: 'lineDashOffset', hasStter: true, type: Number },
+      { name: 'miterLimit', hasStter: true, type: Number },
+      { name: 'width', hasStter: true, type: Number },
+    ]),
+  ],
 }
 </script>
 

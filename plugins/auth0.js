@@ -6,6 +6,10 @@ export default async function (ctx, inject) {
     client_id: ctx.$config.auth0ClientId,
     redirect_uri: `${ctx.$config.baseURL}/callback/login`,
     audience: ctx.$config.auth0Audience,
+    advancedOptions: {
+      defaultScope:
+        'openid profile email https://https://lauzplan.eu.auth0.com/email',
+    },
   })
 
   inject('auth', $auth)

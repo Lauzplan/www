@@ -1,0 +1,6 @@
+query getUsersInfos {
+  me {
+    id
+    username
+  }
+}

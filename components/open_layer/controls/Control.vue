@@ -1,7 +1,3 @@
-<template>
-  <div class="ol-control"><slot /></div>
-</template>
-
 <script>
 import { Control } from 'ol/control'
 export default {
@@ -33,6 +29,9 @@ export default {
   },
   beforeDestroy() {
     this.getMapInstance().removeControl(this.control)
+  },
+  render() {
+    return this.$slots.default
   },
 }
 </script>

@@ -1,0 +1,10 @@
+query getSpecies {
+  species {
+    id
+    name
+    varieties: basevarietySet {
+      id
+      name
+    }
+  }
+}

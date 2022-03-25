@@ -1,0 +1,5 @@
+mutation addInvitation($email: String!, $gardenId: ID!) {
+  addInvitation(email: $email, gardenId: $gardenId) {
+    ok
+  }
+}

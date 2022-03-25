@@ -1,0 +1,31 @@
+query getPerformedOperations {
+  performedOperations {
+    id
+    date
+    startTime
+    endTime
+    numberOfWorker
+    comment
+    totalWorkTime
+    variety {
+      id
+      name
+      species {
+        id
+        name
+      }
+    }
+  }
+  species {
+    id
+    name
+    varieties: basevarietySet {
+      id
+      name
+      species {
+        id
+        name
+      }
+    }
+  }
+}

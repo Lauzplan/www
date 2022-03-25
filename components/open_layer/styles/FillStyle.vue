@@ -1,22 +1,14 @@
 <script>
 import Fill from 'ol/style/Fill'
+import mixinMaker from './mixin'
+
 export default {
   name: 'FillStyle',
-  inject: ['getStyleInstance'],
-  data() {
-    return {
-      fillStyle: new Fill({ color: this.$attrs.color }),
-    }
-  },
-  mounted() {
-    this.getStyleInstance().setFill(this.fillStyle)
-  },
-  beforeDestroy() {
-    this.getStyleInstance().setFill(undefined)
-  },
-  render() {
-    return null
-  },
+  mixins: [
+    mixinMaker(Fill, [
+      { name: 'color', hasSetter: true, type: [Array, String] },
+    ]),
+  ],
 }
 </script>
 

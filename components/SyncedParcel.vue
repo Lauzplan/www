@@ -113,8 +113,9 @@ export default {
         })
     }
   },
-
-  beforeDestroy() {
+  async beforeDestroy() {
+    await this.$nextTick()
+    await this.$nextTick()
     if (this.sync) {
       const feature = this.feature
       const gardenId = this.gardenId

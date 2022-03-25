@@ -12,5 +12,50 @@ export default {
   components: {},
   layout: 'empty',
   auth: false,
+  data() {
+    return {
+      selectedSpecies: null,
+      selectedVariety: null,
+      bedRange: [0, 1],
+      species: [
+        {
+          id: 0,
+          name: 'Carotte',
+          varieties: [{ id: 0, name: 'Bello' }],
+        },
+      ],
+      beds: [
+        {
+          id: 0,
+          cutivableArea: 10,
+        },
+        {
+          id: 1,
+          cutivableArea: 10,
+        },
+        {
+          id: 2,
+          cutivableArea: 10,
+        },
+        {
+          id: 3,
+          cutivableArea: 10,
+        },
+        {
+          id: 4,
+          cutivableArea: 10,
+        },
+        {
+          id: 5,
+          cutivableArea: 10,
+        },
+        {
+          id: 6,
+          cutivableArea: 10,
+        },
+      ],
+      area: 0,
+    }
+  },
 }
 </script>

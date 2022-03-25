@@ -1,22 +1,32 @@
 <template>
   <v-tooltip bottom open-delay="100">
     <template v-slot:activator="{ on, attrs }">
-      <v-text-field
-        v-model="innerName"
-        v-bind="attrs"
-        hide-details
-        :loading="isSaving"
-        v-on="on"
-        @keydown.enter="saveName"
-        @blur="saveName"
-      ></v-text-field>
+      <ApolloMutation
+        :mutation="require('../../graphql/updateGarden.gql')"
+        :variables="{
+          id: garden.id,
+          gardenName: innerName,
+        }"
+      >
+        <template v-slot="{ mutate, loading, error }">
+          <v-text-field
+            v-model="innerName"
+            v-bind="attrs"
+            :loading="loading"
+            :hide-details="!error"
+            :error-messages="error ? 'Impossible de sauver le nom' : ''"
+            v-on="on"
+            @keydown.enter="save(mutate)"
+            @blur="save(mutate)"
+          ></v-text-field>
+        </template>
+      </ApolloMutation>
     </template>
     <span>Renommer</span>
   </v-tooltip>
 </template>
 
 <script>
-import updateGarden from '@/graphql/updateGarden.gql'
 export default {
   name: 'GardenNameEditor',
   props: {
@@ -28,7 +38,6 @@ export default {
   data() {
     return {
       innerName: null,
-      isSaving: false,
     }
   },
   watch: {
@@ -40,23 +49,8 @@ export default {
     },
   },
   methods: {
-    saveName() {
-      this.isSaving = true
-      this.$apollo
-        .mutate({
-          mutation: updateGarden,
-          variables: {
-            id: this.garden.id,
-            gardenName: this.innerName,
-          },
-        })
-        .catch(() => {
-          this.innerName = this.garden.name
-          this.$emit('error', 'Impossible de sauver le nom')
-        })
-        .finally(() => {
-          this.isSaving = false
-        })
+    save(mutate) {
+      if (this.innerName !== this.garden.name) mutate()
     },
   },
 }

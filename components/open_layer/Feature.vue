@@ -1,46 +1,49 @@
 <template>
-  <div>
-    <slot v-if="feature" />
+  <div v-if="feature">
+    <slot />
+    <style-list-slot-wrapper v-model="style">
+      <slot name="style" />
+    </style-list-slot-wrapper>
   </div>
 </template>
 
 <script>
 import { Feature } from 'ol'
+import StyleListSlotWrapper from './StyleListSlotWrapper.vue'
 export default {
   name: 'Feature',
+  components: { StyleListSlotWrapper },
   props: {
-    featureStyle: {
+    properties: {
       type: Object,
-      required: false,
-      default: undefined,
-    },
-    geometry: {
-      type: Object,
-      required: false,
-      default: undefined,
+      default: () => {},
     },
   },
   data() {
-    return { feature: null }
+    return { feature: null, style: [] }
   },
   provide() {
     return { getFeatureInstance: () => this.feature }
   },
   inject: ['getSourceInstance'],
   watch: {
-    featureStyle(value) {
-      this.feature.setStyle(value)
+    style() {
+      this.feature.setStyle(this.style)
+    },
+    properties(val) {
+      this.feature.setProperties(val)
     },
   },
   mounted() {
     this.feature = new Feature({
       geometry: this.geometry,
-      style: this.featureStyle,
+      style: this.style > 0 ? this.style : undefined,
+      ...this.properties,
     })
-    this.getSourceInstance().getFeaturesCollection().push(this.feature)
+    this.getSourceInstance().addFeature(this.feature)
   },
   beforeDestroy() {
-    this.getSourceInstance().getFeaturesCollection().remove(this.feature)
+    this.getSourceInstance().removeFeature(this.feature)
   },
 }
 </script>

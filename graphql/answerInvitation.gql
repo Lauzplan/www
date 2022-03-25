@@ -1,0 +1,5 @@
+mutation answerInvitation($invitationId: ID!, $accept: Boolean!) {
+  answerInvitation(invitationId:$invitationId, accept:$accept) {
+    ok
+  }
+}

@@ -1,0 +1,8 @@
+query getPlantations {
+  plantations {
+    bed {
+      id
+    }
+    area
+  }
+}

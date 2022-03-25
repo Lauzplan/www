@@ -1,7 +1,7 @@
 <template>
   <div v-if="loading" :feature="feature">
     <feature-style-applier :feature="feature">
-      <stroke-style color="grey" width="3" />
+      <stroke-style color="grey" :width="3" />
       <fill-style :color="[255, 255, 255, 0.5]" />
     </feature-style-applier>
     <overlay
@@ -28,6 +28,9 @@ export default {
       type: Object,
       required: true,
     },
+  },
+  provide() {
+    return { getFeatureInstance: () => this.feature }
   },
   subscriptions() {
     const feature$ = this.$watchAsObservable('feature', {

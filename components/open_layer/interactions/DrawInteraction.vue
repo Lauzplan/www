@@ -4,6 +4,7 @@
 
 <script>
 import { Draw } from 'ol/interaction'
+import { fromOpenLayerEvent } from '~/utils/obesravble'
 export default {
   name: 'DrawInteraction',
   props: {
@@ -19,11 +20,18 @@ export default {
       type: Array,
       default: () => [],
     },
+    active: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
-    return { interaction: null }
+    return {
+      interaction: null,
+      eventToEmit: ['drawabort', 'drawend', 'drawstart'],
+    }
   },
-  inject: ['getMapInstance', 'getSourceInstance', 'getFeatures'],
+  inject: ['getMapInstance', 'getFeatures', 'getSourceInstance'],
   watch: {
     options: {
       handler(val) {
@@ -31,26 +39,58 @@ export default {
         if (this.control) {
           map.removeControl(this.control)
         }
-        // const source = this.getSourceInstance()
-        // if (!source) return
+
         this.interaction = new Draw({
-          // source,
-          features: this.getFeatures(),
+          source: this.getSourceInstance(),
           type: this.type,
           ...val,
         })
-        // needed to add the interaction after default controls has been loaded
-        this.$nextTick().then(() => {
-          map.addInteraction(this.interaction)
-        })
+
+        map.addInteraction(this.interaction)
+        this.interaction.setActive(this.active)
+        this.$subscribeTo(
+          fromOpenLayerEvent(this.interaction, 'change:active'),
+          () => {
+            this.$emit('update:active', this.interaction.getActive())
+          }
+        )
       },
       deep: true,
+      immediate: true,
+    },
+    interaction: {
+      handler(value, oldValue) {
+        if (oldValue) {
+          for (const event of this.eventToEmit) {
+            oldValue.un(event, this.handleEvent)
+          }
+        }
+        if (value) {
+          for (const event of this.eventToEmit) {
+            value.on(event, this.handleEvent)
+          }
+        }
+      },
+      immediate: true,
+    },
+    active: {
+      handler(value) {
+        this.interaction.setActive(value)
+      },
       immediate: true,
     },
   },
   beforeDestroy() {
     const map = this.getMapInstance()
     map.removeInteraction(this.interaction)
+    for (const event of this.eventToEmit) {
+      this.interaction.un(event, this.handleEvent)
+    }
+  },
+  methods: {
+    handleEvent({ type, ...rest }) {
+      this.$emit(type, rest)
+    },
   },
 }
 </script>

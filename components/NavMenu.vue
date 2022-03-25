@@ -45,6 +45,10 @@ export default {
       immediate: true,
       deep: true,
     },
+    routes: {
+      handler: 'updateRoute',
+      deep: true,
+    },
   },
   mounted() {
     this.updateRoute()

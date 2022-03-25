@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 500px">
+  <div style="height: 100%; width: 100%">
     <slot v-if="map"></slot>
   </div>
 </template>
@@ -27,6 +27,7 @@ export default {
   data() {
     return {
       map: null,
+      resizeObserver: new ResizeObserver(() => this.map.updateSize()),
     }
   },
   watch: {
@@ -55,6 +56,10 @@ export default {
         }),
       }),
     })
+    this.resizeObserver.observe(this.$el)
+  },
+  beforeDestroy() {
+    this.resizeObserver.disconnect()
   },
   methods: {
     fitHandler(val) {

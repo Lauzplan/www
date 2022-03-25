@@ -17,11 +17,12 @@ describe('ErrorManager', () => {
   })
 
   test('should display the given error for 2s', async () => {
-    const { updateProps, getByText } = renderWithVuetify(ErrorManager)
+    const { updateProps, getByText, debug } = renderWithVuetify(ErrorManager)
     await updateProps({ error: { message: 'some error' } })
     expect(getByText('some error')).toBeVisible()
     jest.runTimersToTime(2000)
     await Vue.nextTick()
+    debug()
     expect(getByText('some error')).not.toBeVisible()
   })
 

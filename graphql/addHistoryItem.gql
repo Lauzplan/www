@@ -1,0 +1,15 @@
+mutation addHistoryItem(
+  $comment: String
+  $numberOfWorker: Int
+  $varietyId: ID!
+  $withDate: WithDateInput!
+) {
+  addHistoryItemOnVariety(
+    comment: $comment
+    numberOfWorker: $numberOfWorker
+    varietyId: $varietyId
+    withDate: $withDate
+  ) {
+    ok
+  }
+}

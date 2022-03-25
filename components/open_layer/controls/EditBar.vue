@@ -57,6 +57,9 @@ export default {
         const modifyi = new Modify({
           features: this.control.getInteraction('Select').getFeatures(),
         })
+        this.control.getInteraction('Select').on('select', (data) => {
+          this.$emit('select', data)
+        })
 
         modifyi.on('modifystart', () => {
           this.$emit('changeModify', true)

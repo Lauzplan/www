@@ -25,12 +25,10 @@ export default {
       immediate: true,
       handler(val) {
         if (!val) return
+        const interaction = this.getInteraction()
+        if (!interaction || length(val) === 0) return
         if (this.guide) this.remove()
-        this.$nextTick().then(() => {
-          const interaction = this.getInteraction()
-          if (!interaction || length(val) === 0) return
-          this.guide = interaction.addGuide(val)
-        })
+        this.guide = interaction.addGuide(val)
       },
     },
   },

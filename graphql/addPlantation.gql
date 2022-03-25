@@ -1,0 +1,13 @@
+mutation addPlantation($area: Int!, $startBedId: ID!, $varietyId: ID!) {
+  addPlantation(
+    area: $area
+    startBedId: $startBedId
+    varietyId: $varietyId
+  ) {
+    bed {
+      id
+      totalPlantedArea
+    }
+    area
+  }
+}

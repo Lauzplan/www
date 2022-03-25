@@ -1,34 +1,42 @@
 <template>
   <div v-if="active">
-    <control class="input-control bed-space-control">
-      <v-text-field
-        v-model="bedSpacing"
-        label="Passe pied"
-        type="number"
-        style="width: 70px"
-        hide-details
-        suffix="cm"
-        dir="rtl"
-      ></v-text-field>
+    <control class="ol-control input-control bed-space-control">
+      <v-card>
+        <v-text-field
+          v-model="bedSpacing"
+          label="Passe pied"
+          type="number"
+          style="width: 70px"
+          hide-details
+          suffix="cm"
+          dir="rtl"
+        ></v-text-field>
+      </v-card>
     </control>
-    <control class="input-control bed-size-control">
-      <v-text-field
-        v-model="bedWidth"
-        label="Planche"
-        type="number"
-        style="width: 70px"
-        hide-details
-        suffix="cm"
-        dir="rtl"
-      ></v-text-field>
+    <control class="ol-control input-control bed-size-control">
+      <v-card>
+        <v-text-field
+          v-model="bedWidth"
+          label="Planche"
+          type="number"
+          style="width: 70px"
+          hide-details
+          suffix="cm"
+          dir="rtl"
+        ></v-text-field>
+      </v-card>
     </control>
     <vector-layer>
+      <template #style>
+        <feature-style>
+          <template #stroke>
+            <stroke-style color="#ffcc33" :width="5" />
+          </template>
+        </feature-style>
+      </template>
       <vector-source>
         <feature v-if="segment && !loading">
           <line-string :coordinates="segment" />
-          <feature-style>
-            <stroke-style color="#ffcc33" width="5" />
-          </feature-style>
         </feature>
       </vector-source>
     </vector-layer>
@@ -36,14 +44,7 @@
 </template>
 
 <script>
-import {
-  distinctUntilChanged,
-  filter,
-  map,
-  mergeMap,
-  pluck,
-  switchMap,
-} from 'rxjs/operators'
+import { distinctUntilChanged, map, mergeMap, pluck } from 'rxjs/operators'
 import { iif, of } from 'rxjs'
 import gql from 'graphql-tag'
 
@@ -65,9 +66,10 @@ import LineString from '../geometry/LineString.vue'
 import Feature from '../Feature.vue'
 import FeatureStyle from '../styles/FeatureStyle.vue'
 import StrokeStyle from '../styles/StrokeStyle.vue'
-import { fromOpenLayerEvent } from '~/utils/obesravble'
+import interaction from './mixin'
+
 export default {
-  name: 'Oriantation',
+  name: 'Orientation',
   components: {
     VectorLayer,
     VectorSource,
@@ -76,29 +78,26 @@ export default {
     StrokeStyle,
     FeatureStyle,
   },
+  mixins: [interaction],
   data() {
     return {
       bedWidth: 100,
       bedSpacing: 40,
-      pointerI: null,
       loading: false,
     }
   },
-  inject: ['getLayerInstance', 'getControlInstance', 'getMapInstance'],
+  inject: ['getMapInstance'],
   observableMethods: {
     handleMoveEvent: 'handleMoveEvent$',
   },
   beforeMount() {
-    this.pointerI = new PointerInteraction({
+    this.interaction = new PointerInteraction({
       handleDownEvent: this.handleDownEvent,
       handleMoveEvent: this.handleMoveEvent,
     })
 
-    this.$nextTick().then(() => {
-      this.getControlInstance().setInteraction(this.pointerI)
-      this.pointerI.setActive(this.getControlInstance().getActive())
-      this.getMapInstance().addInteraction(this.pointerI)
-    })
+    this.interaction.setActive(this.active)
+    this.getMapInstance().addInteraction(this.interaction)
   },
   methods: {
     handleDownEvent() {
@@ -139,34 +138,33 @@ export default {
             bedWidth: this.bedWidth,
             bedSpacing: this.bedSpacing,
           },
+          refetchQueries: ['parcelsFromGardenId', 'gardenById'],
           update: (
-            store,
+            client,
             {
               data: {
                 selectOrientation: { beds },
               },
             }
           ) => {
-            const fragment = gql`
-              fragment parcel on ParcelType {
-                id
-                beds {
+            const query = gql`
+              query garden($id: ID!) {
+                parcel(id: $id) {
                   id
-                  geometry
+                  beds {
+                    id
+                    geometry
+                  }
                 }
               }
             `
-            const data = store.readFragment({
-              id: `ParcelType:${feature.getId()}`,
-              fragment,
-            })
 
-            data.beds = beds
-
-            store.writeFragment({
-              id: `ParcelType:${feature.getId()}`,
-              fragment,
-              data,
+            client.writeQuery({
+              query,
+              variables: { id: feature.getId() },
+              data: {
+                parcel: { __typename: 'ParcelType', id: feature.getId(), beds },
+              },
             })
           },
         })
@@ -185,7 +183,7 @@ export default {
         features: mapI
           .getFeaturesAtPixel(mapI.getPixelFromCoordinate(coordinate), {
             layerFilter(layer) {
-              return layer.getProperties().name === 'parcelLayer'
+              return layer.getProperties().name === 'parcels'
             },
             hitTolerance: 10,
           })
@@ -238,15 +236,6 @@ export default {
     return {
       segment: segment$,
       feature: hoveredFeatureAndCoord$.pipe(pluck('feature')),
-      active: this.$watchAsObservable('pointerI').pipe(
-        pluck('newValue'),
-        filter((value) => value),
-        switchMap((interaction) =>
-          fromOpenLayerEvent(interaction, 'change:active').pipe(
-            map(({ target }) => target.getActive())
-          )
-        )
-      ),
     }
   },
 }

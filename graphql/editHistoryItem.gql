@@ -1,0 +1,31 @@
+mutation editHistoryItem(
+  $date: Date
+  $endTime: Time
+  $id: ID!
+  $startTime: Time
+  $varietyId: ID
+  $numberOfWorker: Int
+  $comment: String
+) {
+  editHistoryItem(
+    date: $date
+    endTime: $endTime
+    id: $id
+    startTime: $startTime
+    varietyId: $varietyId
+    numberOfWorker: $numberOfWorker
+    comment: $comment
+  ) {
+    id
+    variety {
+      id
+      name
+    }
+    date
+    startTime
+    endTime
+    numberOfWorker
+    comment
+    totalWorkTime
+  }
+}

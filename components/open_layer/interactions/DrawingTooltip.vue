@@ -187,7 +187,7 @@ export default {
     ).pipe(
       filter(({ keyCode }) => keyCode === 9),
       withLatestFrom(active$),
-      filter(([e, active]) => active),
+      filter(([_, active]) => active),
       map(([e]) => e)
     )
     this.$subscribeTo(tab$, () => {

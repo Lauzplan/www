@@ -1,41 +1,64 @@
 <template>
-  <div>
-    <overlay
-      v-if="show"
-      :offset="overlayOffset"
-      :positioning="'bottom-center'"
-      :position="coordinate"
-    >
-      <slot :coordinate="coordinate" />
-    </overlay>
-  </div>
+  <overlay
+    v-if="show"
+    :offset="overlayOffset"
+    :positioning="'bottom-center'"
+    :position="coordinate"
+  >
+    <slot :coordinate="coordinate" :on="{ show: onShow }" />
+    <slot name="hint">
+      <v-fade-transition>
+        <v-chip v-show="hint && showHint">{{ hint }}</v-chip>
+      </v-fade-transition>
+    </slot>
+  </overlay>
 </template>
 
 <script>
-import { fromEvent, merge } from 'rxjs'
-import { mapTo, pluck } from 'rxjs/operators'
+import { combineLatest, fromEvent, merge } from 'rxjs'
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  mapTo,
+  pluck,
+  startWith,
+} from 'rxjs/operators'
 import PointerInteraction from 'ol/interaction/Pointer'
 import Overlay from '../Overlay.vue'
+import interaction from './mixin'
 
 export default {
   name: 'MouseTooltip',
   components: { Overlay },
-  inject: ['getMapInstance', 'getControlInstance'],
+  mixins: [interaction],
+  inject: ['getMapInstance'],
   provide() {
     return {
       getOverlayInstance: () => this.tooltip,
     }
   },
+  props: {
+    debounceTime: {
+      type: Number,
+      default: 500,
+    },
+    hint: {
+      type: String,
+      default: '',
+    },
+  },
   data() {
     return {
       show: false,
       coordinate: [0, 0],
-      overlayOffset: [0, -10],
+      overlayOffset: [0, -20],
       interaction: null,
     }
   },
   observableMethods: {
     handleMoveEvent: 'handleMoveEvent$',
+    onShow: 'show$',
   },
   mounted() {
     this.interaction = new PointerInteraction({
@@ -43,9 +66,8 @@ export default {
     })
 
     this.$nextTick().then(() => {
-      this.interaction.setActive(this.getControlInstance().getActive())
+      this.interaction.setActive(this.active)
       this.getMapInstance().addInteraction(this.interaction)
-      this.getControlInstance().setInteraction(this.interaction)
     })
   },
   beforeDestroy() {
@@ -60,6 +82,19 @@ export default {
         fromEvent(this.getMapInstance().getTargetElement(), 'mouseout').pipe(
           mapTo(false)
         )
+      ),
+      showHint: combineLatest([
+        merge(
+          this.handleMoveEvent$.pipe(mapTo(false)),
+          this.handleMoveEvent$.pipe(
+            mapTo(true),
+            debounceTime(this.debounceTime)
+          )
+        ),
+        this.show$.pipe(startWith(false)),
+      ]).pipe(
+        map(([mouseStoped, contentShow]) => !contentShow && mouseStoped),
+        distinctUntilChanged()
       ),
       coordinate,
     }

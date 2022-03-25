@@ -19,9 +19,10 @@ export default {
   mounted() {
     const source = this.getSourceInstance()
     for (const parcel of this.parcels) {
-      const feature = new Feature(
-        source.getFormat().readGeometry(parcel.geometry)
-      )
+      const feature = new Feature({
+        geometry: source.getFormat().readGeometry(parcel.geometry),
+        parcel,
+      })
       feature.setId(parcel.id)
       source.addFeature(feature)
     }

@@ -1,12 +1,10 @@
 <template>
   <div>
-    <div>coucou</div>
+    <slot></slot>
   </div>
 </template>
 <script>
 export default {
-  data: () => ({
-    type: '',
-  }),
+  name: 'PropManager',
 }
 </script>

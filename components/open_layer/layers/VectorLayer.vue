@@ -1,12 +1,17 @@
 <template>
-  <div>
-    <slot v-if="layer"></slot>
+  <div v-if="layer">
+    <slot></slot>
+    <style-list-slot-wrapper v-model="style">
+      <slot name="style" />
+    </style-list-slot-wrapper>
   </div>
 </template>
 <script>
 import VectorLayer from 'ol/layer/Vector'
+import StyleListSlotWrapper from '../StyleListSlotWrapper.vue'
 
 export default {
+  components: { StyleListSlotWrapper },
   props: {
     options: {
       type: Object,
@@ -26,11 +31,19 @@ export default {
   data() {
     return {
       layer: null,
+      style: [],
+      styleFunction: null,
     }
   },
   watch: {
     properties(val) {
       this.layer.setProperties(val)
+    },
+    style(val) {
+      this.layer.setStyle(val)
+    },
+    styleFunction(val) {
+      this.layer.setStyle(val)
     },
   },
   beforeMount() {

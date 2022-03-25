@@ -45,6 +45,9 @@ export default {
     },
   },
   domStreams: ['close$', 'input$'],
+  mounted() {
+    this.$errorManager.setHandler(this.globalError)
+  },
   subscriptions() {
     const snackbarClose$ = merge(
       this.close$.pipe(mapTo(false)),
@@ -54,8 +57,10 @@ export default {
         filter((msg) => !msg)
       )
     )
-    const message$ = this.$watchAsObservable('error').pipe(
-      pluck('newValue'),
+    const message$ = merge(
+      this.$watchAsObservable('error').pipe(pluck('newValue')),
+      this.globalError$
+    ).pipe(
       pluck('message'),
       filter((msg) => msg),
       concatMap((msg) =>
@@ -70,6 +75,7 @@ export default {
       snackbar: snackbar$,
     }
   },
+  observableMethods: ['globalError'],
 }
 </script>
 

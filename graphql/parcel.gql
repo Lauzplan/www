@@ -11,9 +11,24 @@ query parcelsFromGardenId($id: ID!) {
       id
       name
       geometry
+      area
+      cultivableArea
       beds {
         id
         geometry
+        area
+        totalPlantedArea
+        plantations {
+          id
+          area
+          variety {
+            id
+            name
+          }
+        }
+        parcel {
+          id
+        }
       }
     }
   }
@@ -44,7 +59,7 @@ mutation createParcel($name: String!, $geometry: String!, $gardenId: ID!) {
   }
 }
 
-mutation updateParcel($geometry: String, $id: ID!) {
+mutation updateParcel($geometry: String!, $id: ID!) {
   updateParcel(geometry: $geometry, id: $id) {
     id
     name

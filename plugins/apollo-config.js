@@ -51,7 +51,7 @@ const resolvers = {
     },
   },
   Mutation: {
-    async selectGarden(root, { gardenId }, { client }) {
+    async selectGarden(_, { gardenId }, { client }) {
       if (!(await doesGardenExist(gardenId, client)))
         throw new Error(`Garden with id ${gardenId} does not exist`)
 
@@ -70,20 +70,27 @@ const resolvers = {
       const preferences = knownUsers[me.id]?.preferences || {
         __typename: 'UserPreferences',
       }
-
+      const fragment = gql`
+        fragment newPref on UserPreferences {
+          selectedGarden {
+            id
+          }
+        }
+      `
+      const data = client.readFragment({
+        id: `$UserType:${me.id}.preferences`,
+        fragment,
+      }) || {
+        __typename: 'UserPreferences',
+        selectedGarden: { __typename: 'GardenType' },
+      }
       client.writeFragment({
         id: `$UserType:${me.id}.preferences`,
-        fragment: gql`
-          fragment NewPref on UserPreferences {
-            selectedGarden {
-              id
-            }
-          }
-        `,
+        fragment,
         data: {
-          __typename: 'UserPreferences',
+          ...data,
           selectedGarden: {
-            __typename: 'GardenType',
+            ...data.selectedGarden,
             id: gardenId,
           },
         },
@@ -96,7 +103,10 @@ const resolvers = {
           [me.id]: {
             preferences: {
               ...preferences,
-              selectedGarden: { __typename: 'GardenType', id: gardenId },
+              selectedGarden: {
+                __typename: 'GardenType',
+                id: gardenId,
+              },
             },
           },
         })

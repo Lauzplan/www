@@ -1,0 +1,5 @@
+mutation deleteHistoryItem($id: ID!) {
+  deleteHistoryItem(id: $id) {
+    ok
+  }
+}
